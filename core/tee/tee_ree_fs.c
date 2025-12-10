@@ -457,8 +457,14 @@ out:
 			DMSG("Secure storage corruption detected");
 		if (fdp->fd != -1)
 			tee_fs_rpc_close(OPTEE_RPC_CMD_FS, fdp->fd);
-		if (create)
+#if defined(CFG_REE_FS_INTEGRITY_RPMB)
+		if (create || !hash) {
+#else
+		if (create) {
+#endif
+			DMSG("Remove corrupt dirf.db");
 			tee_fs_rpc_remove_dfh(OPTEE_RPC_CMD_FS, dfh);
+		}
 		free(fdp);
 	}
 
@@ -565,6 +571,7 @@ static TEE_Result open_dirh(struct tee_fs_dirfile_dirh **dirh)
 			}
 		}
 
+		DMSG("Create dirf.db");
 		res = tee_fs_dirfile_open(true, NULL, 0, &ree_dirf_ops, dirh);
 	}
 
