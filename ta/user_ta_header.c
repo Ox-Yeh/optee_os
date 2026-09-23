@@ -8,6 +8,7 @@
 #include <tee_ta_api.h>
 #include <tee_internal_api_extensions.h>
 #include <trace.h>
+#include <assert.h>
 #include <user_ta_header.h>
 #include <user_ta_header_defines.h>
 #include <utee_syscalls.h>
@@ -92,6 +93,10 @@ _C_FUNCTION(__ta_entry)(unsigned long func,
  * It has been set to 2048 to include trace framework and invoke commands
  */
 #define TA_FRAMEWORK_STACK_SIZE 2048
+
+/* TA_FLAG_CONCURRENT is for pseudo-TAs only. */
+static_assert(!(TA_FLAGS & TA_FLAG_CONCURRENT),
+         "TA_FLAG_CONCURRENT is for pseudo-TAs only, not user TAs");
 
 const struct ta_head ta_head __section(".ta_head") = {
 	/* UUID, unique to each TA */
